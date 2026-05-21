@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import Editor from "@monaco-editor/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import {
   ArrowLeft, Play, Send, CheckCircle2, XCircle, Terminal, FileText, ChevronDown, Code2,
 } from "lucide-react";
