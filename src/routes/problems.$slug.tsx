@@ -92,7 +92,7 @@ function ProblemPage() {
       </header>
 
       <div className="flex-1 min-h-0 p-3">
-        <PanelGroup direction="horizontal" className="rounded-xl overflow-hidden border border-border bg-card/30">
+        <PanelGroup orientation="horizontal" className="rounded-xl overflow-hidden border border-border bg-card/30">
           <Panel defaultSize={45} minSize={28}>
             <LeftPanel problem={problem} />
           </Panel>
@@ -113,7 +113,7 @@ function ProblemPage() {
                 <span className="text-xs text-muted-foreground">auto-saved</span>
               </div>
 
-              <PanelGroup direction="vertical" className="flex-1">
+              <PanelGroup orientation="vertical" className="flex-1">
                 <Panel defaultSize={65} minSize={30}>
                   <div className="h-full bg-[color:var(--editor)]">
                     <Editor
