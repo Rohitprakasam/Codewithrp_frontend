@@ -20,6 +20,7 @@ export function StatusBadge({ value }: { value: SubmissionStatus }) {
     "Wrong Answer": "bg-destructive/15 text-destructive border-destructive/30",
     TLE: "bg-warning/15 text-warning border-warning/30",
     "Runtime Error": "bg-destructive/15 text-destructive border-destructive/30",
+    "Compilation Error": "bg-destructive/15 text-destructive border-destructive/30",
     Pending: "bg-muted text-muted-foreground border-border",
   };
   return (
