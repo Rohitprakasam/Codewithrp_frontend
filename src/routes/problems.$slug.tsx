@@ -3,7 +3,15 @@ import Editor from "@monaco-editor/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import {
-  ArrowLeft, Play, Send, CheckCircle2, XCircle, Terminal, FileText, ChevronDown, Code2,
+  ArrowLeft,
+  Play,
+  Send,
+  CheckCircle2,
+  XCircle,
+  Terminal,
+  FileText,
+  ChevronDown,
+  Code2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -17,9 +25,7 @@ export const Route = createFileRoute("/problems/$slug")({
   component: ProblemPage,
 });
 
-const LANGS = [
-  { id: "java", label: "Java" },
-];
+const LANGS = [{ id: "java", label: "Java" }];
 
 function ProblemPage() {
   const { slug } = Route.useParams();
@@ -31,11 +37,14 @@ function ProblemPage() {
   const [activeTc, setActiveTc] = useState(0);
   const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [output, setOutput] = useState<{ text: string; ok: boolean; time: string } | null>(null);
+  const [output, setOutput] = useState<{ text: string; ok: boolean; status?: string; time: string } | null>(null);
 
   useEffect(() => {
     ProblemsService.get(slug).then((p) => {
-      if (!p) { navigate({ to: "/dashboard" }); return; }
+      if (!p) {
+        navigate({ to: "/dashboard" });
+        return;
+      }
       setProblem(p);
       setCode(p.starterCode[lang] ?? "");
     });
@@ -48,15 +57,17 @@ function ProblemPage() {
 
   const run = async () => {
     if (!problem) return;
-    setRunning(true); setTab("console");
+    setRunning(true);
+    setTab("console");
     const res = await SubmissionsService.run(problem.id, code);
-    setOutput({ text: res.output, ok: res.passed, time: res.time });
+    setOutput({ text: res.output, ok: res.passed, status: res.status, time: res.time });
     setRunning(false);
   };
 
   const submit = async () => {
     if (!problem) return;
-    setSubmitting(true); setTab("console");
+    setSubmitting(true);
+    setTab("console");
     try {
       const res = await SubmissionsService.submit(problem.id, code);
       let text = "Some testcases failed.";
@@ -76,14 +87,21 @@ function ProblemPage() {
   };
 
   if (!problem) {
-    return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading problem…</div>;
+    return (
+      <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
+        Loading problem…
+      </div>
+    );
   }
 
   return (
     <div className="h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-30 h-14 shrink-0 border-b border-border bg-background/80 backdrop-blur px-4 flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          <Link to="/dashboard" className="grid place-items-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          <Link
+            to="/dashboard"
+            className="grid place-items-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="grid place-items-center h-7 w-7 rounded-md bg-primary/15 text-primary">
@@ -103,7 +121,10 @@ function ProblemPage() {
       </header>
 
       <div className="flex-1 min-h-0 p-3">
-        <PanelGroup orientation="horizontal" className="rounded-xl overflow-hidden border border-border bg-card/30">
+        <PanelGroup
+          orientation="horizontal"
+          className="rounded-xl overflow-hidden border border-border bg-card/30"
+        >
           <Panel defaultSize={45} minSize={28}>
             <LeftPanel problem={problem} />
           </Panel>
@@ -117,7 +138,11 @@ function ProblemPage() {
                     onChange={(e) => setLang(e.target.value)}
                     className="appearance-none bg-accent text-sm rounded-md pl-3 pr-8 py-1.5 outline-none border border-border hover:bg-accent/80 transition-colors cursor-pointer"
                   >
-                    {LANGS.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+                    {LANGS.map((l) => (
+                      <option key={l.id} value={l.id}>
+                        {l.label}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 pointer-events-none text-muted-foreground" />
                 </div>
@@ -150,39 +175,62 @@ function ProblemPage() {
                 <Panel defaultSize={35} minSize={15}>
                   <div className="h-full flex flex-col bg-background/40">
                     <div className="flex items-center gap-1 border-b border-border px-2 shrink-0">
-                      <TabBtn active={tab === "testcases"} onClick={() => setTab("testcases")} icon={<FileText className="h-3.5 w-3.5" />}>Testcases</TabBtn>
-                      <TabBtn active={tab === "console"} onClick={() => setTab("console")} icon={<Terminal className="h-3.5 w-3.5" />}>Console</TabBtn>
+                      <TabBtn
+                        active={tab === "testcases"}
+                        onClick={() => setTab("testcases")}
+                        icon={<FileText className="h-3.5 w-3.5" />}
+                      >
+                        Testcases
+                      </TabBtn>
+                      <TabBtn
+                        active={tab === "console"}
+                        onClick={() => setTab("console")}
+                        icon={<Terminal className="h-3.5 w-3.5" />}
+                      >
+                        Console
+                      </TabBtn>
                     </div>
                     <div className="flex-1 overflow-auto scrollbar-thin p-4">
                       <AnimatePresence mode="wait">
                         {tab === "testcases" ? (
                           <motion.div
                             key="tc"
-                            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                           >
                             <div className="flex gap-1.5 mb-4">
-                              {problem.testcases.filter((t) => !t.hidden).map((t, i) => (
-                                <button
-                                  key={t.id}
-                                  onClick={() => setActiveTc(i)}
-                                  className={`text-xs px-3 py-1.5 rounded-md transition-colors ${
-                                    activeTc === i ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/50"
-                                  }`}
-                                >
-                                  Case {i + 1}
-                                </button>
-                              ))}
+                              {problem.testcases
+                                .filter((t) => !t.hidden)
+                                .map((t, i) => (
+                                  <button
+                                    key={t.id}
+                                    onClick={() => setActiveTc(i)}
+                                    className={`text-xs px-3 py-1.5 rounded-md transition-colors ${
+                                      activeTc === i
+                                        ? "bg-accent text-foreground"
+                                        : "text-muted-foreground hover:bg-accent/50"
+                                    }`}
+                                  >
+                                    Case {i + 1}
+                                  </button>
+                                ))}
                             </div>
                             <div className="space-y-3">
                               <KV label="Input" value={problem.testcases[activeTc]?.input ?? ""} />
-                              <KV label="Expected" value={problem.testcases[activeTc]?.output ?? ""} />
+                              <KV
+                                label="Expected"
+                                value={problem.testcases[activeTc]?.output ?? ""}
+                              />
                             </div>
                           </motion.div>
                         ) : (
                           <motion.div
                             key="out"
-                            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                             className="font-mono text-xs"
                           >
@@ -193,15 +241,27 @@ function ProblemPage() {
                               </div>
                             ) : output ? (
                               <div className="space-y-3">
-                                <div className={`flex items-center gap-2 text-sm font-medium ${output.ok ? "text-success" : "text-destructive"}`}>
-                                  {output.ok ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                                  {output.ok ? "Accepted" : "Wrong Answer"}
-                                  <span className="text-muted-foreground text-xs ml-auto font-normal">Runtime: {output.time}</span>
+                                <div
+                                  className={`flex items-center gap-2 text-sm font-medium ${output.ok ? "text-success" : "text-destructive"}`}
+                                >
+                                  {output.ok ? (
+                                    <CheckCircle2 className="h-4 w-4" />
+                                  ) : (
+                                    <XCircle className="h-4 w-4" />
+                                  )}
+                                  {output.ok ? "Accepted" : (output.status || "Wrong Answer")}
+                                  <span className="text-muted-foreground text-xs ml-auto font-normal">
+                                    Runtime: {output.time}
+                                  </span>
                                 </div>
-                                <pre className="whitespace-pre-wrap rounded-md bg-[color:var(--editor)] border border-border p-3 text-foreground/90">{output.text}</pre>
+                                <pre className="whitespace-pre-wrap rounded-md bg-[color:var(--editor)] border border-border p-3 text-foreground/90">
+                                  {output.text}
+                                </pre>
                               </div>
                             ) : (
-                              <p className="text-muted-foreground">Run your code to see output here.</p>
+                              <p className="text-muted-foreground">
+                                Run your code to see output here.
+                              </p>
                             )}
                           </motion.div>
                         )}
@@ -218,7 +278,17 @@ function ProblemPage() {
   );
 }
 
-function TabBtn({ active, onClick, children, icon }: { active: boolean; onClick: () => void; children: React.ReactNode; icon: React.ReactNode }) {
+function TabBtn({
+  active,
+  onClick,
+  children,
+  icon,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  icon: React.ReactNode;
+}) {
   return (
     <button
       onClick={onClick}
@@ -228,7 +298,12 @@ function TabBtn({ active, onClick, children, icon }: { active: boolean; onClick:
     >
       {icon}
       {children}
-      {active && <motion.span layoutId="tab-underline" className="absolute inset-x-2 -bottom-px h-0.5 bg-primary rounded-full" />}
+      {active && (
+        <motion.span
+          layoutId="tab-underline"
+          className="absolute inset-x-2 -bottom-px h-0.5 bg-primary rounded-full"
+        />
+      )}
     </button>
   );
 }
@@ -237,7 +312,9 @@ function KV({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-xs text-muted-foreground mb-1">{label}</div>
-      <pre className="font-mono text-xs whitespace-pre-wrap rounded-md bg-[color:var(--editor)] border border-border p-3">{value}</pre>
+      <pre className="font-mono text-xs whitespace-pre-wrap rounded-md bg-[color:var(--editor)] border border-border p-3">
+        {value}
+      </pre>
     </div>
   );
 }
@@ -248,25 +325,49 @@ function LeftPanel({ problem }: { problem: Problem }) {
     <div className="h-full overflow-auto scrollbar-thin">
       <div className="p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">{problem.id}. {problem.title}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">
+            {problem.id}. {problem.title}
+          </h2>
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <DifficultyBadge value={problem.difficulty} />
             {problem.tags.map((t) => (
-              <span key={t} className="text-xs bg-muted/60 text-muted-foreground rounded px-2 py-0.5">{t}</span>
+              <span
+                key={t}
+                className="text-xs bg-muted/60 text-muted-foreground rounded px-2 py-0.5"
+              >
+                {t}
+              </span>
             ))}
-            <span className="text-xs text-muted-foreground ml-auto">Acceptance {problem.acceptance}%</span>
+            <span className="text-xs text-muted-foreground ml-auto">
+              Acceptance {problem.acceptance}%
+            </span>
           </div>
         </div>
 
-        <Section title="Description" open={open.desc} onToggle={() => setOpen((s) => ({ ...s, desc: !s.desc }))}>
-          <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">{problem.description}</p>
+        <Section
+          title="Description"
+          open={open.desc}
+          onToggle={() => setOpen((s) => ({ ...s, desc: !s.desc }))}
+        >
+          <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-line">
+            {problem.description}
+          </p>
         </Section>
 
-        <Section title="Examples" open={open.ex} onToggle={() => setOpen((s) => ({ ...s, ex: !s.ex }))}>
+        <Section
+          title="Examples"
+          open={open.ex}
+          onToggle={() => setOpen((s) => ({ ...s, ex: !s.ex }))}
+        >
           <div className="space-y-4">
             {problem.examples.map((ex, i) => (
-              <div key={i} className="rounded-lg border border-border bg-background/40 p-4 space-y-2">
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Example {i + 1}</div>
+              <div
+                key={i}
+                className="rounded-lg border border-border bg-background/40 p-4 space-y-2"
+              >
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Example {i + 1}
+                </div>
                 <KV label="Input" value={ex.input} />
                 <KV label="Output" value={ex.output} />
                 {ex.explanation && (
@@ -280,9 +381,15 @@ function LeftPanel({ problem }: { problem: Problem }) {
           </div>
         </Section>
 
-        <Section title="Constraints" open={open.cons} onToggle={() => setOpen((s) => ({ ...s, cons: !s.cons }))}>
+        <Section
+          title="Constraints"
+          open={open.cons}
+          onToggle={() => setOpen((s) => ({ ...s, cons: !s.cons }))}
+        >
           <ul className="space-y-1.5 text-sm font-mono text-foreground/85">
-            {problem.constraints.map((c, i) => <li key={i}>· {c}</li>)}
+            {problem.constraints.map((c, i) => (
+              <li key={i}>· {c}</li>
+            ))}
           </ul>
         </Section>
       </div>
@@ -290,17 +397,34 @@ function LeftPanel({ problem }: { problem: Problem }) {
   );
 }
 
-function Section({ title, open, onToggle, children }: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
+function Section({
+  title,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <button onClick={onToggle} className="flex w-full items-center justify-between text-sm font-semibold mb-3 group">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between text-sm font-semibold mb-3 group"
+      >
         <span>{title}</span>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-0" : "-rotate-90"}`} />
+        <ChevronDown
+          className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-0" : "-rotate-90"}`}
+        />
       </button>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="overflow-hidden"
           >

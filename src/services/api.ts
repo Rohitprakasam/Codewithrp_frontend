@@ -52,7 +52,10 @@ export const ProblemsService = {
       difficulty: p.difficulty,
       tags: p.tags || [],
       description: p.description || "",
-      constraints: ["Standard Java Class Name must be 'Main'", "Execution time limit is 8.0 seconds"],
+      constraints: [
+        "Standard Java Class Name must be 'Main'",
+        "Execution time limit is 8.0 seconds",
+      ],
       examples: [],
       starterCode: { java: p.starter_code || "" },
       testcases: [],
@@ -87,7 +90,10 @@ export const ProblemsService = {
       difficulty: p.difficulty,
       tags: p.tags || [],
       description: p.description || "",
-      constraints: ["Standard Java Class Name must be 'Main'", "Execution time limit is 8.0 seconds"],
+      constraints: [
+        "Standard Java Class Name must be 'Main'",
+        "Execution time limit is 8.0 seconds",
+      ],
       examples: testcases.map((tc: any) => ({
         input: tc.input,
         output: tc.output,
@@ -107,7 +113,7 @@ export const ProblemsService = {
     tags: string[];
     visible_testcases: { input: string; expected_output: string }[];
     hidden_testcases: { input: string; expected_output: string }[];
-    }): Promise<any> {
+  }): Promise<any> {
     const res = await safeFetch(`${API_BASE}/admin/problems`, {
       method: "POST",
       headers: getHeaders(),
@@ -188,7 +194,10 @@ export const SubmissionsService = {
     };
   },
 
-  async run(problemId: string, code: string): Promise<{ output: string; passed: boolean; time: string }> {
+  async run(
+    problemId: string,
+    code: string,
+  ): Promise<{ output: string; passed: boolean; status: SubmissionStatus; time: string }> {
     const start = Date.now();
     const res = await safeFetch(`${API_BASE}/execute/run`, {
       method: "POST",
@@ -202,6 +211,7 @@ export const SubmissionsService = {
       return {
         output: errData.message || "Failed to execute run",
         passed: false,
+        status: "Wrong Answer",
         time: `${elapsed} ms`,
       };
     }
@@ -211,11 +221,15 @@ export const SubmissionsService = {
     return {
       output,
       passed,
+      status: result.status as SubmissionStatus,
       time: `${elapsed} ms`,
     };
   },
 
-  async submit(problemId: string, code: string): Promise<{ status: SubmissionStatus; runtime: string }> {
+  async submit(
+    problemId: string,
+    code: string,
+  ): Promise<{ status: SubmissionStatus; runtime: string }> {
     const res = await safeFetch(`${API_BASE}/execute/submit`, {
       method: "POST",
       headers: getHeaders(),
@@ -293,7 +307,9 @@ export const AdminService = {
   },
 
   async getAssignments(problemId: string) {
-    const res = await safeFetch(`${API_BASE}/admin/problems/${problemId}/assign`, { headers: getHeaders() });
+    const res = await safeFetch(`${API_BASE}/admin/problems/${problemId}/assign`, {
+      headers: getHeaders(),
+    });
     if (!res.ok) throw new Error("Failed to fetch assignments");
     const result = await res.json();
     return result.data;
@@ -344,4 +360,3 @@ export const MessagesService = {
     return result.data;
   },
 };
-
