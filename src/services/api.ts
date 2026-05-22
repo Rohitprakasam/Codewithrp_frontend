@@ -279,6 +279,19 @@ export const AdminService = {
     return result.data;
   },
 
+  async deleteStudent(id: string) {
+    const res = await safeFetch(`${API_BASE}/admin/users/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Failed to delete student");
+    }
+    const result = await res.json();
+    return result.data;
+  },
+
   async getAssignments(problemId: string) {
     const res = await safeFetch(`${API_BASE}/admin/problems/${problemId}/assign`, { headers: getHeaders() });
     if (!res.ok) throw new Error("Failed to fetch assignments");

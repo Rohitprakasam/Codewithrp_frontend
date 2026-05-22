@@ -95,6 +95,47 @@ function AdminPage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold tracking-tight mb-4">Students</h2>
+            <div className="rounded-xl border border-border bg-card/50 overflow-hidden">
+              <div className="grid grid-cols-12 px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground border-b border-border bg-background/30">
+                <div className="col-span-5">Name</div>
+                <div className="col-span-5">Email</div>
+                <div className="col-span-2 text-right">Actions</div>
+              </div>
+              {students ? students.map((s, i) => (
+                <div key={s.id} className="grid grid-cols-12 items-center px-5 py-3.5 text-sm border-b border-border last:border-0 hover:bg-accent/40 transition-colors w-full">
+                  <div className="col-span-5 font-medium truncate">{s.name}</div>
+                  <div className="col-span-5 text-muted-foreground truncate">{s.email}</div>
+                  <div className="col-span-2 text-right">
+                    <button 
+                      onClick={async () => {
+                        if (confirm(`Remove student ${s.name}?`)) {
+                          try {
+                            await AdminService.deleteStudent(s.id);
+                            setStudents(prev => prev ? prev.filter(x => x.id !== s.id) : null);
+                            toast.success("Student removed");
+                          } catch (e: any) {
+                            toast.error(e.message || "Failed to remove");
+                          }
+                        }
+                      }}
+                      className="text-xs font-medium text-destructive hover:underline transition-all"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )) : (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="px-5 py-4 border-b border-border last:border-0">
+                    <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          <section>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold tracking-tight">Submissions</h2>
               <div className="flex items-center gap-2 flex-wrap">
