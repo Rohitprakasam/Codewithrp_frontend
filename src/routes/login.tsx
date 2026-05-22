@@ -8,7 +8,7 @@ import { AuthService } from "@/services/api";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in — codepit" }] }),
+  head: () => ({ meta: [{ title: "Sign in — CodeWithRP" }] }),
   component: LoginPage,
 });
 
@@ -39,7 +39,7 @@ function LoginPage() {
       const user = await AuthService.login(email, password, role);
       signIn(user);
       toast.success(`Welcome back, ${user.name}`);
-      navigate({ to: role === "admin" ? "/admin" : "/dashboard" });
+      navigate({ to: user.role === "admin" ? "/admin" : "/dashboard" });
     } catch {
       toast.error("Invalid credentials");
     } finally {
@@ -60,7 +60,7 @@ function LoginPage() {
             <Code2 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome to codepit</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Welcome to CodeWithRP</h1>
             <p className="text-sm text-muted-foreground mt-1">Sign in to keep your streak alive.</p>
           </div>
         </div>
@@ -113,7 +113,7 @@ function LoginPage() {
             </Btn>
 
             <p className="text-xs text-center text-muted-foreground pt-2">
-              Demo mode — use any email & 6+ char password.
+              Use your registered credentials to sign in.
             </p>
           </form>
         </div>

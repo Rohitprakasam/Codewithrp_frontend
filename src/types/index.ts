@@ -1,5 +1,5 @@
 export type Difficulty = "Easy" | "Medium" | "Hard";
-export type SubmissionStatus = "Accepted" | "Wrong Answer" | "TLE" | "Runtime Error" | "Pending";
+export type SubmissionStatus = "Accepted" | "Wrong Answer" | "TLE" | "Runtime Error" | "Pending" | "Compilation Error";
 export type Role = "student" | "admin";
 
 export interface User {
@@ -7,6 +7,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  token?: string;
 }
 
 export interface TestCase {
@@ -18,6 +19,7 @@ export interface TestCase {
 
 export interface Problem {
   id: string;
+  display_id: number;
   slug: string;
   title: string;
   difficulty: Difficulty;
@@ -39,4 +41,23 @@ export interface Submission {
   status: SubmissionStatus;
   runtime: string;
   submittedAt: string;
+  source_code?: string;
+}
+
+export interface Message {
+  id: string;
+  sender_id: string;
+  receiver_id: string | null;
+  content: string;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface Thread {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  last_message: string | null;
+  last_message_at: string | null;
+  unread_count: string | number;
 }

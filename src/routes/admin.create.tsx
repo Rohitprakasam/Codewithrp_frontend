@@ -9,7 +9,7 @@ import { ProblemsService } from "@/services/api";
 import type { Difficulty } from "@/types";
 
 export const Route = createFileRoute("/admin/create")({
-  head: () => ({ meta: [{ title: "Create problem — codepit" }] }),
+  head: () => ({ meta: [{ title: "Create problem — CodeWithRP" }] }),
   component: CreatePage,
 });
 
@@ -20,7 +20,14 @@ function CreatePage() {
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("Easy");
   const [description, setDescription] = useState("");
-  const [starter, setStarter] = useState("function solve(input) {\n  \n}");
+  const [starter, setStarter] = useState(`import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Read input and write solution output here
+    }
+}`);
   const [tcs, setTcs] = useState<TC[]>([
     { id: "1", input: "", output: "", hidden: false },
   ]);
@@ -40,17 +47,26 @@ function CreatePage() {
     const e: Record<string, string> = {};
     if (!title.trim()) e.title = "Title required";
     if (!description.trim()) e.description = "Description required";
+    if (!starter.trim()) e.starter = "Starter code required";
     if (visible.length === 0) e.tcs = "At least one visible testcase required";
     setErrors(e);
     if (Object.keys(e).length) return;
 
     setSaving(true);
     try {
-      await ProblemsService.create({ title, difficulty, description });
+      await ProblemsService.create({
+        title,
+        difficulty,
+        description,
+        starter_code: starter,
+        tags: [],
+        visible_testcases: visible.map((t) => ({ input: t.input, expected_output: t.output })),
+        hidden_testcases: hidden.map((t) => ({ input: t.input, expected_output: t.output })),
+      });
       toast.success("Problem published");
       navigate({ to: "/admin" });
-    } catch {
-      toast.error("Could not save problem");
+    } catch (err: any) {
+      toast.error(err.message || "Could not save problem");
     } finally {
       setSaving(false);
     }

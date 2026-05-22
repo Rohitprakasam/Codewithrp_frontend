@@ -8,7 +8,7 @@ import { ProblemsService, SubmissionsService } from "@/services/api";
 import type { Problem, Submission } from "@/types";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — codepit" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — CodeWithRP" }] }),
   component: Dashboard,
 });
 
@@ -96,7 +96,7 @@ function Dashboard() {
                         params={{ slug: p.slug }}
                         className="grid grid-cols-12 items-center px-5 py-3.5 text-sm border-b border-border last:border-0 transition-colors hover:bg-accent/40 group"
                       >
-                        <div className="col-span-1 text-muted-foreground">{p.id}</div>
+                        <div className="col-span-1 text-muted-foreground">{p.display_id}</div>
                         <div className="col-span-6 sm:col-span-5 font-medium group-hover:text-primary transition-colors truncate">
                           {p.title}
                         </div>

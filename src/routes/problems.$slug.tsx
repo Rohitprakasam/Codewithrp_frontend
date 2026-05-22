@@ -13,21 +13,19 @@ import { ProblemsService, SubmissionsService } from "@/services/api";
 import type { Problem } from "@/types";
 
 export const Route = createFileRoute("/problems/$slug")({
-  head: () => ({ meta: [{ title: "Solve — codepit" }] }),
+  head: () => ({ meta: [{ title: "Solve — CodeWithRP" }] }),
   component: ProblemPage,
 });
 
 const LANGS = [
-  { id: "javascript", label: "JavaScript" },
-  { id: "python", label: "Python" },
-  { id: "cpp", label: "C++" },
+  { id: "java", label: "Java" },
 ];
 
 function ProblemPage() {
   const { slug } = Route.useParams();
   const navigate = useNavigate();
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [lang, setLang] = useState("javascript");
+  const [lang, setLang] = useState("java");
   const [code, setCode] = useState("");
   const [tab, setTab] = useState<"testcases" | "console">("testcases");
   const [activeTc, setActiveTc] = useState(0);
@@ -49,19 +47,32 @@ function ProblemPage() {
   }, [lang, problem]);
 
   const run = async () => {
+    if (!problem) return;
     setRunning(true); setTab("console");
-    const res = await SubmissionsService.run(code, lang);
+    const res = await SubmissionsService.run(problem.id, code);
     setOutput({ text: res.output, ok: res.passed, time: res.time });
     setRunning(false);
   };
 
   const submit = async () => {
+    if (!problem) return;
     setSubmitting(true); setTab("console");
-    const res = await SubmissionsService.submit(code, lang);
-    setOutput({ text: res.status === "Accepted" ? "All testcases passed 🎉" : "Some testcases failed.", ok: res.status === "Accepted", time: res.runtime });
-    if (res.status === "Accepted") toast.success(`Accepted in ${res.runtime}`);
-    else toast.error("Wrong Answer");
-    setSubmitting(false);
+    try {
+      const res = await SubmissionsService.submit(problem.id, code);
+      let text = "Some testcases failed.";
+      if (res.status === "Accepted") {
+        text = "All testcases passed 🎉";
+      } else if (res.status === "Compilation Error") {
+        text = "Compilation Error: Please check your code syntax.";
+      }
+      setOutput({ text, ok: res.status === "Accepted", time: res.runtime });
+      if (res.status === "Accepted") toast.success(`Accepted in ${res.runtime}`);
+      else toast.error(res.status);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit execution");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!problem) {

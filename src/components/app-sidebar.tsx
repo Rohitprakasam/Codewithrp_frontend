@@ -10,6 +10,7 @@ import {
   Users,
   PlusCircle,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,14 +22,14 @@ const studentNav: Item[] = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Problems", to: "/dashboard", icon: ListChecks },
   { label: "Submissions", to: "/dashboard", icon: History },
-  { label: "Leaderboard", to: "/dashboard", icon: Trophy },
+  { label: "Messages", to: "/messages", icon: MessageSquare },
 ];
 
 const adminNav: Item[] = [
   { label: "Overview", to: "/admin", icon: LayoutDashboard },
   { label: "Problems", to: "/admin", icon: ListChecks },
   { label: "Create", to: "/admin/create", icon: PlusCircle },
-  { label: "Students", to: "/admin", icon: Users },
+  { label: "Messages", to: "/messages", icon: MessageSquare },
 ];
 
 export function AppSidebar({ variant = "student" }: { variant?: "student" | "admin" }) {
@@ -43,7 +44,7 @@ export function AppSidebar({ variant = "student" }: { variant?: "student" | "adm
         <div className="grid place-items-center h-8 w-8 rounded-lg bg-primary/15 text-primary">
           <Code2 className="h-4 w-4" />
         </div>
-        <span className="font-semibold tracking-tight">codepit</span>
+        <span className="font-semibold tracking-tight">CodeWithRP</span>
       </div>
 
       <nav className="flex-1 p-3 space-y-1">
